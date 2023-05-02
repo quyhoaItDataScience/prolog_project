@@ -62,16 +62,16 @@ def unify(a: Predicate, b:Predicate): #rule: first param: query
 
 #query is Predicate
 def process(query: Predicate, KB: list):
-    global checkTruth
+    global checkTruth, isPrint
     global results
     for predicate in KB:
         post_unify_predicate = unify(query, predicate)[0]
         if post_unify_predicate == query:
             checkTruth = True
-
         if not predicate.implies:
             for p in KB:
-                if post_unify_predicate == p and not checkTruth:
+                if post_unify_predicate == p and not checkTruth:    
+                    isPrint = True
                     post_unify_predicate.print()
                 if post_unify_predicate == p and checkTruth:
                     results.append(1)
@@ -82,7 +82,7 @@ def process(query: Predicate, KB: list):
             after_unify_predicate=unify(predicate.implies,query)
             results.clear()
             checkTruth = False
-            process(after_unify_predicate[0], KB)            
+            process(after_unify_predicate[0], KB)          
 
 
 
@@ -124,14 +124,18 @@ if __name__ == "__main__":
     while(True):
         print("?- ",end="")
         checkTruth = False
+        isPrint = False
         results.clear()
         inp = input()
         qArr = [Predicate(query) for query in splitQuery(inp)]
         for q in qArr:
             process(q, kb)
-            print(results)
+            if isPrint: 
+                continue
             if 0 in results and checkTruth:
                 print("False")
                 break
+        if isPrint:
+            continue
         if 0 not in results and checkTruth:
             print("True")

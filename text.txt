@@ -1,3 +1,5 @@
+likes(duy,nhi)
+likes(hoa,thao)
+likes(ducanh,adu)
 human(duy)
-human(hoa)
 mortal(X):-human(X)
