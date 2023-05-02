@@ -1,7 +1,8 @@
 import copy
 
+
 class Predicate:
-    def __init__(self, str, implies = None):
+    def __init__(self, str, implies=None):
         # index of (
         idx = str.index("(")
         self.relation = str[:idx]
@@ -25,7 +26,6 @@ class Predicate:
         return True
 
     def print(self):
-        print(f"Relation: {self.relation}")
         print(f"Variables: {self.variables}")
         print('\n')
 
@@ -41,14 +41,16 @@ def readFile():
     f = open("text.txt", "r")
     return f.read().split('\n')
 
+
 def isVar(var: str):
     firstLetter = var[0]
     if firstLetter.isupper():
         return True
     return False
 
-def unify(a: Predicate, b:Predicate): #rule: first param: query
-    
+
+def unify(a: Predicate, b: Predicate):  # rule: first param: query
+
     aCopy = copy.deepcopy(a)
     bCopy = copy.deepcopy(b)
     for i in range(len(aCopy.variables)):
@@ -58,11 +60,12 @@ def unify(a: Predicate, b:Predicate): #rule: first param: query
         if isVar(bCopy.variables[i]):
             bCopy.variables[i] = a.variables[i]
 
-    return aCopy,bCopy
+    return aCopy, bCopy
 
-#query is Predicate
+
+# query is Predicate
 def process(query: Predicate, KB: list):
-    global checkTruth, isPrint
+    global checkTruth, isPrint, noUni
     global results
     for predicate in KB:
         post_unify_predicate = unify(query, predicate)[0]
@@ -70,25 +73,22 @@ def process(query: Predicate, KB: list):
             checkTruth = True
         if not predicate.implies:
             for p in KB:
-                if post_unify_predicate == p and not checkTruth:    
+                if post_unify_predicate == p and not checkTruth:
                     isPrint = True
-                    post_unify_predicate.print()
+                    if post_unify_predicate not in printResults:
+                        printResults.append(post_unify_predicate)
                 if post_unify_predicate == p and checkTruth:
                     results.append(1)
                     return
             results.append(0)
-        
+            if not checkTruth:
+                noUni = True
+
         elif predicate.relation == query.relation:
-            after_unify_predicate=unify(predicate.implies,query)
+            after_unify_predicate = unify(predicate.implies, query)
             results.clear()
             checkTruth = False
-            process(after_unify_predicate[0], KB)          
-
-
-
-    # if not checkTruth:
-    #     print("No unification found")
-
+            process(after_unify_predicate[0], KB)
 
 def splitQuery(q: str) -> list:
     qArr = []
@@ -108,34 +108,40 @@ def splitQuery(q: str) -> list:
 
 
 if __name__ == "__main__":
-    checkTruth = False
     predicates = readFile()
     kb = []
     results = []
     for pre in predicates:
-        if ":-" not  in pre:
+        if ":-" not in pre:
             predicate = Predicate(pre)
         else:
-            a,b = pre.split(":-") #syntax of query: pred1:-pred2
+            a, b = pre.split(":-")  # syntax of query: pred1:-pred2
             predicate = Predicate(a, Predicate(b))
         kb.append(predicate)
 
-    #get user input
-    while(True):
-        print("?- ",end="")
+    # get user input
+    while (True):
+        print("?- ", end="")
+        printResults = []
         checkTruth = False
         isPrint = False
+        noUni = False
         results.clear()
         inp = input()
         qArr = [Predicate(query) for query in splitQuery(inp)]
         for q in qArr:
-            process(q, kb)
-            if isPrint: 
+            process(q, kb)   
+            if isPrint:
                 continue
+            if noUni:
+                print("No unification found")
+                break
             if 0 in results and checkTruth:
                 print("False")
                 break
-        if isPrint:
+        if isPrint or noUni:
+            for uni in printResults:
+                uni.print()
             continue
         if 0 not in results and checkTruth:
             print("True")
