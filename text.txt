@@ -1,0 +1,3 @@
+human(duy)
+human(hoa)
+mortal(X):-human(X)
