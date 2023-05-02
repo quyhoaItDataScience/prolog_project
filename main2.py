@@ -66,24 +66,30 @@ def processVar(query: Predicate, KB:list):
             idxQuery.append(i)
     for variables in mp[query.relation]:
         isEqual = True
-        for i in range(len(variables)):
+        for i in range(len(variables[0])):
             if i not in idxQuery:
                 continue
-            if variables[i] != query.variables[i]:
+            if variables[0][i] != query.variables[i]:
                 isEqual = False
                 break
         if isEqual:
-            print(variables)
+            print(variables[0])
             
 # query is Predicate
 def process(query: Predicate, KB: list) -> bool:
     mp = defaultdict(list)
     for pre in KB:
-        mp[pre.relation].append(pre.variables)
+        mp[pre.relation].append((pre.variables, pre.implies))
     if query.relation not in mp:
         return 0
+    if mp[query.relation][0][1]:
+        #implies is currently an object
+        implies = mp[query.relation][0][1]
+        query.relation = implies.relation
+        process(query, KB)
+        return
     for variables in mp[query.relation]:
-        if variables == query.variables:
+        if variables[0] == query.variables:
             return 1
     return 0
 
