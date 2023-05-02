@@ -1,4 +1,5 @@
 import copy
+from collections import defaultdict
 
 
 class Predicate:
@@ -41,54 +42,50 @@ def readFile():
     f = open("text.txt", "r")
     return f.read().split('\n')
 
-
 def isVar(var: str):
-    firstLetter = var[0]
-    if firstLetter.isupper():
-        return True
-    return False
+    return var[0].isupper()
 
-
-def unify(a: Predicate, b: Predicate):  # rule: first param: query
-
-    aCopy = copy.deepcopy(a)
-    bCopy = copy.deepcopy(b)
-    for i in range(len(aCopy.variables)):
-        if isVar(aCopy.variables[i]):
-            aCopy.variables[i] = b.variables[i]
-    for i in range(len(bCopy.variables)):
-        if isVar(bCopy.variables[i]):
-            bCopy.variables[i] = a.variables[i]
-
-    return aCopy, bCopy
-
-
+def processVar(query: Predicate, KB:list):
+    #relation: [(pre.variables, Predicate)]
+    mp = defaultdict(list)
+    for pre in KB:
+        mp[pre.relation].append((pre.variables, pre.implies))
+    if query.relation not in mp:
+        return
+    #if have implies
+    if mp[query.relation][0][1]:
+        #implies is currently an object
+        implies = mp[query.relation][0][1]
+        query.relation = implies.relation
+        processVar(query, KB)
+        return
+    #index of where you need to look for
+    idxQuery = []
+    for i, var in enumerate(q.variables):
+        if not isVar(var):
+            idxQuery.append(i)
+    for variables in mp[query.relation]:
+        isEqual = True
+        for i in range(len(variables)):
+            if i not in idxQuery:
+                continue
+            if variables[i] != query.variables[i]:
+                isEqual = False
+                break
+        if isEqual:
+            print(variables)
+            
 # query is Predicate
-def process(query: Predicate, KB: list):
-    global checkTruth, isPrint, noUni
-    global results
-    for predicate in KB:
-        post_unify_predicate = unify(query, predicate)[0]
-        if post_unify_predicate == query:
-            checkTruth = True
-        if not predicate.implies:
-            for p in KB:
-                if post_unify_predicate == p and not checkTruth:
-                    isPrint = True
-                    if post_unify_predicate not in printResults:
-                        printResults.append(post_unify_predicate)
-                if post_unify_predicate == p and checkTruth:
-                    results.append(1)
-                    return
-            results.append(0)
-            if not checkTruth:
-                noUni = True
-
-        elif predicate.relation == query.relation:
-            after_unify_predicate = unify(predicate.implies, query)
-            results.clear()
-            checkTruth = False
-            process(after_unify_predicate[0], KB)
+def process(query: Predicate, KB: list) -> bool:
+    mp = defaultdict(list)
+    for pre in KB:
+        mp[pre.relation].append(pre.variables)
+    if query.relation not in mp:
+        return 0
+    for variables in mp[query.relation]:
+        if variables == query.variables:
+            return 1
+    return 0
 
 def splitQuery(q: str) -> list:
     qArr = []
@@ -122,26 +119,18 @@ if __name__ == "__main__":
     # get user input
     while (True):
         print("?- ", end="")
-        printResults = []
-        checkTruth = False
-        isPrint = False
-        noUni = False
-        results.clear()
+        results = [2]
         inp = input()
         qArr = [Predicate(query) for query in splitQuery(inp)]
         for q in qArr:
-            process(q, kb)   
-            if isPrint:
-                continue
-            if noUni:
-                print("No unification found")
-                break
-            if 0 in results and checkTruth:
+            if q.countVar():
+                processVar(q, kb)
+            else:
+                if 2 in results:
+                    results.remove(2)
+                results.append(process(q, kb))
+        if 2 not in results:
+            if 0 in results:
                 print("False")
-                break
-        if isPrint or noUni:
-            for uni in printResults:
-                uni.print()
-            continue
-        if 0 not in results and checkTruth:
-            print("True")
+            else:
+                print("True")
