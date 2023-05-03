@@ -64,6 +64,7 @@ def processVar(query: Predicate, KB:list):
     for i, var in enumerate(q.variables):
         if not isVar(var):
             idxQuery.append(i)
+    cnt = 0
     for variables in mp[query.relation]:
         isEqual = True
         for i in range(len(variables[0])):
@@ -73,7 +74,10 @@ def processVar(query: Predicate, KB:list):
                 isEqual = False
                 break
         if isEqual:
+            cnt += 1
             print(variables[0])
+    if cnt == 0:
+        print("No unification")
             
 # query is Predicate
 def process(query: Predicate, KB: list) -> bool:
@@ -87,7 +91,6 @@ def process(query: Predicate, KB: list) -> bool:
         implies = mp[query.relation][0][1]
         query.relation = implies.relation
         process(query, KB)
-        return
     for variables in mp[query.relation]:
         if variables[0] == query.variables:
             return 1
@@ -135,8 +138,9 @@ if __name__ == "__main__":
                 if 2 in results:
                     results.remove(2)
                 results.append(process(q, kb))
+        print(results)
         if 2 not in results:
-            if 0 in results:
+            if 0 in results or None in results:
                 print("False")
             else:
                 print("True")
