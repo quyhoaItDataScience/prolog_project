@@ -126,7 +126,7 @@ def processVar1(query: Predicate, KB: list) -> bool:
         curRes = helperVar(query, mp)
         if -1 in curRes:
             return print("No unification")
-        return printArray(curRes)
+        return print(curRes)
     #find first common in map Predicate
     if query.relation in mp:
         #[(variables, implies)]
@@ -154,7 +154,7 @@ def processVar1(query: Predicate, KB: list) -> bool:
         # if not have implies
         if not mp[query.relation][0][1]:
             res = helperVar(query, mp)
-            print("helper", curRes, res)
+            print("helper", curRes, res) 
             commonBetweenTwo = find_common(curRes, res)
 
             if commonBetweenTwo:
@@ -173,7 +173,7 @@ def processVar1(query: Predicate, KB: list) -> bool:
             if not commonBetweenTwo:
                 return []
             curRes = commonBetweenTwo
-        return res
+        return curRes
     
     for i in range(1, len(implies)):
         query.relation = implies[i].relation
@@ -181,7 +181,7 @@ def processVar1(query: Predicate, KB: list) -> bool:
         if not nextRes:
             return print("No found")       
         curRes = nextRes
-    return printArray(curRes)
+    return print(curRes)
 
 # query is Predicate
 def process(query: Predicate, KB: list) -> bool:
