@@ -2,47 +2,31 @@ from collections import defaultdict
 
 
 class Predicate:
-    def __init__(self, str, implies=None):
-        # index of (
-        idx = str.index("(")
-        self.relation = str[:idx]
-        self.variables = []
-        self.implies = [] #list of Predicate
-        curString = ""
-        for i in range(idx + 1, len(str)):
-            if str[i].isalpha():
-                curString += str[i]
-            if str[i] == ",":
-                self.variables.append(curString)
-                curString = ""
-            if str[i] == ")":
-                self.variables.append(curString)
-                break
+    def __init__(self, string):
+        # Extract relation and variables from string
+        left_paren_idx = string.index("(")
+        right_paren_idx = string.index(")")
+        self.relation = string[:left_paren_idx]
+        self.variables = string[left_paren_idx+1:right_paren_idx].split(",")
+        # Initialize implies as an empty list
+        self.implies = []
 
-    def __eq__(self, __value) -> bool:
-        if (self.relation != __value.relation or
-                self.variables != __value.variables):
-            return False
-        return True
+    def __eq__(self, other):
+        return (self.relation == other.relation and
+                self.variables == other.variables)
 
-    def print(self):
-        print(f"Variables: {self.variables}")
-        print('\n')
-    def __str__(self) -> str:
-        return f"Relations:{self.relation} Variables:{self.variables}\n"
+    def __str__(self):
+        return f"Relation: {self.relation}, Variables: {self.variables}"
+
     def addSubPredicate(self, subPredicate):
         self.implies.append(subPredicate)
 
     def countVar(self):
-        counter = 0
-        for v in self.variables:
-            if isVar(v):
-                counter += 1
-        return counter
+        return sum(1 for v in self.variables if isVar(v))
 
 
 def readFile():
-    f = open("text.txt", "r")
+    f = open("BritishRoyalFamily.txt", "r")
     return f.read().split('\n')
 
 def isVar(var: str):
@@ -71,10 +55,6 @@ def helperVar(query: Predicate, mp) -> list:
         # -1 means no unification
         res.append(-1)
     return res
-#print variables
-def printArray(matrix): 
-    for el in matrix:
-        print(el[0])
 
 def find_common(list1, list2) -> list:
     res = []
@@ -83,36 +63,7 @@ def find_common(list1, list2) -> list:
             res.append(el1)
 
     return res
-def processVar(query: Predicate, KB:list):
-    #relation: [(pre.variables, Predicate)]
-    mp = defaultdict(list)
-    for pre in KB:
-        mp[pre.relation].append((pre.variables, pre.implies))
-    if query.relation not in mp:
-        return print("No unification")
-    #if have implies
-    if mp[query.relation][0][1]:
-        #implies is a list      
-        implies = mp[query.relation][0][1]
-        query.relation = implies[0].relation
-        prevVariables = helperVar(query, mp)
-        if len(implies) == 1:
-            return print(prevVariables)
-        for i in range(1, len(implies)):
-            query.relation = implies[i].relation
-            nextVariables = helperVar(query, mp)
-            prevVariables = find_common(prevVariables, nextVariables)
-            if not prevVariables:
-                return print("No unification")       
-        return printArray(prevVariables)
-        
-        
-    #index of where you need to look for
-    res = helperVar(query, mp)
-    if -1 in res:
-        return print("No unification")
-    printArray(res)
-def processVar1(query: Predicate, KB: list) -> bool:
+def processVar(query: Predicate, KB: list) -> bool:
     #A map with format relation:List[(variables, implies)]
     mp = defaultdict(list)
     for pre in KB:
@@ -142,7 +93,7 @@ def processVar1(query: Predicate, KB: list) -> bool:
         query.relation = firstImplies.relation
         curRes = helperVar(query, mp)
         if n == 1:
-            return printArray(curRes)
+            return print(curRes)
     
     # if n > 1
     def helper(query: Predicate, mp, curRes):
@@ -154,7 +105,7 @@ def processVar1(query: Predicate, KB: list) -> bool:
         # if not have implies
         if not mp[query.relation][0][1]:
             res = helperVar(query, mp)
-            print("helper", curRes, res) 
+            # print("helper", curRes, res) for debug
             commonBetweenTwo = find_common(curRes, res)
 
             if commonBetweenTwo:
@@ -179,7 +130,7 @@ def processVar1(query: Predicate, KB: list) -> bool:
         query.relation = implies[i].relation
         nextRes = helper(query, mp, curRes)
         if not nextRes:
-            return print("No found")       
+            return print("No unification")       
         curRes = nextRes
     return print(curRes)
 
@@ -222,12 +173,18 @@ def splitQuery(q: str) -> list:
         i += 1
     return qArr
 
+def validateInput(string):
+    if not string or "%" in string: 
+        return False
+    return True
 
 if __name__ == "__main__":
     predicates = readFile()
     kb = []
     results = []
     for pre in predicates:
+        if not validateInput(pre): 
+            continue
         if ":-" not in pre:
             predicate = Predicate(pre)
         else:
@@ -246,7 +203,7 @@ if __name__ == "__main__":
         qArr = [Predicate(query) for query in splitQuery(inp)]
         for q in qArr:
             if q.countVar():
-                processVar1(q, kb)
+                processVar(q, kb)
             else:
                 if 2 in results:
                     results.remove(2)
