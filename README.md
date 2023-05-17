@@ -1,3 +1,6 @@
+# Simple Predicate Logic Query Processor
+This is a simple simulation that similar to a deductive reasoning system using one of the learned deductive methods: backtracking.
+&bull; 
 # Predicate Logic Query Processor
 
 This is a Python code that processes queries based on predicate logic using a knowledge base. It allows you to define predicates, load them into the knowledge base, and perform queries on the knowledge base.
