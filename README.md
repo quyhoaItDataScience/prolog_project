@@ -2,7 +2,7 @@
 
 This is a simple simulation that similar to a deductive reasoning system using one of the learned deductive methods: backtracking.
 
-&bull; Input: a file contain knowledge base, and user questions.
+&bull; Input: a file contain knowledge base and user questions.
 
 &bull; Output: a system's answer, inferred from the question on the basis of existing knowledge.
 
@@ -56,8 +56,11 @@ The system will reponse with: [nobita, shizuka]
 
 ## Notes
 
-- The code uses the `defaultdict` class from the `collections` module to store the predicates in the knowledge base.
-- The code supports variables in the predicates, allowing for more complex queries and inference.
-- The code uses a backtracking algorithm to process the queries and find matches in the knowledge base.
+Here's the revised version with improved grammar:
+
+- The code utilizes the defaultdict class from the collections module to store the predicates in the knowledge base.
+- The code supports variables in the predicates, enabling more complex queries and inference.
+The code employs a backtracking algorithm to process the queries and identify matches in the knowledge base.
+- There are two versions of this system. I recommend using the main2.py version because it supports complex and multiple queries. Moreover, the `main2.py` version executes significantly faster than the `main.py` version.
 
 Feel free to modify and adapt the code according to your needs.
