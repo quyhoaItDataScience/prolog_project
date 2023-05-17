@@ -1,5 +1,6 @@
 # Simple Predicate Logic Query Processor
 This is a simple simulation that similar to a deductive reasoning system using one of the learned deductive methods: backtracking.
+
 &bull; Input: a file contain knowledge base, and user questions.
 
 # Predicate Logic Query Processor
