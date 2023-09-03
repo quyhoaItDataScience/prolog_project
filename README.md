@@ -55,9 +55,6 @@ The system will response with: [shizuka, nobita]
 The system will reponse with: [nobita, shizuka]
 
 ## Notes
-
-Here's the revised version with improved grammar:
-
 - The code utilizes the defaultdict class from the collections module to store the predicates in the knowledge base.
 - The code supports variables in the predicates, enabling more complex queries and inference.
 The code employs a backtracking algorithm to process the queries and identify matches in the knowledge base.
